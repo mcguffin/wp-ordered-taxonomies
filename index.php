@@ -1,17 +1,13 @@
 <?php
 
 /*
-Plugin Name: WP Order Taxonomies
+Plugin Name: WP Ordered Taxonomies
 Plugin URI: http://wordpress.org/
 Description: Enter description here.
 Author: Jörn Lund
 Version: 1.0.0
 Author URI: 
-License: GPL3
-
-Text Domain: wp-order-taxonomies
-Domain Path: /languages/
-*/
+License: GPL3*/
 
 /*  Copyright 2015  Jörn Lund
 
@@ -54,18 +50,33 @@ class OrderTaxonomies {
 	 * Private constructor
 	 */
 	private function __construct() {
+		
 		add_action( 'plugins_loaded' , array( &$this , 'load_textdomain' ) );
 		add_action( 'init' , array( &$this , 'init' ) );
+		
+		add_option( 'ordered_taxonomies' , array( ) );
+		
 		register_activation_hook( __FILE__ , array( __CLASS__ , 'activate' ) );
 		register_deactivation_hook( __FILE__ , array( __CLASS__ , 'deactivate' ) );
 		register_uninstall_hook( __FILE__ , array( __CLASS__ , 'uninstall' ) );
+		
+		add_action( 'registered_taxonomy' , array( &$this , 'registered_taxonomy' ) , 20 ,3 );
+		
+	}
+
+	function registered_taxonomy( $taxonomy , $object_type , $args ) {
+		global $wp_taxonomies;
+		$is_ordered = ! isset($wp_taxonomies[ $taxonomy ]->ordered) && 
+			( ( defined( 'PRIVATE_ORDERED_TAXONOMIES' ) && PRIVATE_ORDERED_TAXONOMIES && isset( $args[ 'ordered' ] ) && $args[ 'ordered' ] ) 
+			|| in_array( $taxonomy , get_option( 'ordered_taxonomies' ) ) );
+		$wp_taxonomies[ $taxonomy ]->ordered = $is_ordered;
 	}
 
 	/**
 	 * Load text domain
 	 */
 	public function load_textdomain() {
-		load_plugin_textdomain( 'wp-order-taxonomies' , false, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
+		load_plugin_textdomain( 'wp-ordered-taxonomies' , false, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
 	}
 	/**
 	 * Init hook.
@@ -73,31 +84,77 @@ class OrderTaxonomies {
 	 *  - Register assets
 	 */
 	function init() {
+		add_filter('get_terms_orderby', array( &$this , 'get_terms_orderby' ), 10, 3);
 	}
 
+	/*
+	 * customtaxorder_apply_order_filter
+	 * Function to sort the standard WordPress Queries.
+	 */
+
+	function get_terms_orderby($orderby, $args , $taxonomies ) {
+		if ( $args['orderby'] == 'term_order' ) {
+			return 't.term_order';
+		}
+		return $orderby;
+	}
 
 
 	/**
 	 *	Fired on plugin activation
 	 */
 	public static function activate() {
-	
-	
+		global $wpdb;
+		if (function_exists('is_multisite') && is_multisite()) {
+			$blogids = $wpdb->get_col("SELECT blog_id FROM $wpdb->blogs");
+			foreach ($blogids as $blog_id) {
+				switch_to_blog($blog_id);
+				self::_customtaxorder_activate();
+				restore_current_blog();
+			}
+		} else {
+			self::_customtaxorder_activate();
+		}
+	}
+	/**
+	 *	Add terms.term_order Column to DB
+	 */
+	private function _customtaxorder_activate() {
+		global $wpdb;
+		$init_query = $wpdb->query("SHOW COLUMNS FROM $wpdb->terms LIKE 'term_order'");
+		if ( empty( $init_query )) 
+			$wpdb->query("ALTER TABLE $wpdb->terms ADD term_order INT( 4 ) NULL DEFAULT '0'");
+	}
+	/**
+	 *	Remove terms.term_order Column from DB
+	 */
+	private function _customtaxorder_uninstall() {
+		global $wpdb;
+		$init_query = $wpdb->query("SHOW COLUMNS FROM $wpdb->terms LIKE 'term_order'");
+		if ( ! empty( $init_query ) )
+			$wpdb->query("ALTER TABLE $wpdb->terms DROP COLUMN term_order"); 
 	}
 
 	/**
 	 *	Fired on plugin deactivation
 	 */
-	public static function deactivate() {
-	}
+	public static function deactivate() {}
+
 	/**
-	 *
+	 *	Fired on plugin uninstall
 	 */
 	public static function uninstall(){
-
-
-
-
+		global $wpdb;
+		if (function_exists('is_multisite') && is_multisite()) {
+			$blogids = $wpdb->get_col("SELECT blog_id FROM $wpdb->blogs");
+			foreach ($blogids as $blog_id) {
+				switch_to_blog($blog_id);
+				self::_customtaxorder_uninstall();
+				restore_current_blog();
+			}
+		} else {
+			self::_customtaxorder_uninstall();
+		}
 	}
 
 }
@@ -107,4 +164,6 @@ endif;
 
 if ( is_admin() ) {
 	require_once plugin_dir_path(__FILE__) . 'include/class-OrderTaxonomiesAdmin.php';
+	if ( ! defined( 'PRIVATE_ORDERED_TAXONOMIES' ) || ! PRIVATE_ORDERED_TAXONOMIES )
+		require_once plugin_dir_path(__FILE__) . 'include/class-OrderTaxonomiesSettings.php';
 }

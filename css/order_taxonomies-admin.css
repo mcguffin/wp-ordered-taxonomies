@@ -1,0 +1,24 @@
+th#term_order {
+	width:4em;
+	text-align:right;
+}
+
+.order-icon {
+    display: block;
+    height: 26px;
+    width: 26px;
+    border: 1px solid #BBB;
+    border-radius: 15px;
+    position: relative;
+    overflow: hidden;
+    font-size: 13px;
+    line-height: 25px;
+    text-align: center;
+    background: none repeat scroll 0% 0% #FFF;
+    cursor:move;
+}
+.order-icon.large {
+    width: 28px;
+    height: 28px;
+    line-height: 27px;
+}
