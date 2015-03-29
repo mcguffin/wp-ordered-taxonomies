@@ -36,7 +36,7 @@ To enable developer mode add this to your wp-config.php:
 
 For existsing taxonomies like categories and post tags hook into `registered_taxonomy` 
 and set the ordered flag to `true`:
-	
+
 	function my_registered_taxonomy( $taxonomy ) {
 		if ( $taxonomy == 'category' ) {
 			global $wp_taxonomies;
@@ -44,7 +44,6 @@ and set the ordered flag to `true`:
 		}
 	}
 	add_action( 'registered_taxonomy' , array( &$this , 'my_registered_taxonomy' ) );
-	
 
 Enable term ordering for a custom taxonomy trough `register_taxonomy()` args: 
 
@@ -63,7 +62,7 @@ Enable term ordering for a custom taxonomy trough `register_taxonomy()` args:
 
 To Do:
 ------
- - [ ] JS/Ajax: consider pagination. Start counting at the lowest order instead of `0`
- - [ ] Test with hierarchical taxonomies
+ - [ ] JS/Ajax: respect pagination. Start counting at the lowest order instead of `0`
+ - [ ] make sure it works with hierarchical taxonomies
  - [ ] wp-config.php constant 
  - [ ] Frontend: Set default ordering of sorted taxonomies to `term_order`
