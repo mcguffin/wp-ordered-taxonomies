@@ -11,9 +11,9 @@ Usage:
 ### Frontend
 
 On the frontend you have to explicitly set the `orderby` to `term_order`:
-
-	$ordered_flaggz = get_terms( 'flaggz' , array( 'orderby' => 'term_order' ) );
-
+<pre>
+$ordered_flaggz = get_terms( 'flaggz' , array( <strong>'orderby' => 'term_order'</strong> ) );
+</pre>
 This behaviour might change in the future.
 
 
@@ -46,17 +46,17 @@ and set the ordered flag to `true`:
 	add_action( 'registered_taxonomy' , array( &$this , 'my_registered_taxonomy' ) );
 
 Enable term ordering for a custom taxonomy trough `register_taxonomy()` args: 
+<pre>
+$taxonomy = 'flaggz';
+$post_type = 'post';
+$args = array(
+	'hierarchical'	=> false,
+	<strong>'ordered'		=> true,</strong>
+	'public'		=> true,
+);
 
-	$taxonomy = 'flaggz';
-	$post_type = 'post';
-	$args = array(
-		'hierarchical'	=> false,
-		'ordered'		=> true, // 
-		'public'		=> true,
-	);
-	
-	register_taxonomy( $taxonomy, $post_type , $args );
-
+register_taxonomy( $taxonomy, $post_type , $args );
+</pre>
 
 
 
