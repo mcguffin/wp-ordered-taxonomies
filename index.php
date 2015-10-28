@@ -110,11 +110,11 @@ class OrderTaxonomies {
 			$blogids = $wpdb->get_col("SELECT blog_id FROM $wpdb->blogs");
 			foreach ($blogids as $blog_id) {
 				switch_to_blog($blog_id);
-				self::_customtaxorder_activate();
+				self::instance()->_customtaxorder_activate();
 				restore_current_blog();
 			}
 		} else {
-			self::_customtaxorder_activate();
+			self::instance()->_customtaxorder_activate();
 		}
 	}
 	/**
@@ -150,11 +150,11 @@ class OrderTaxonomies {
 			$blogids = $wpdb->get_col("SELECT blog_id FROM $wpdb->blogs");
 			foreach ($blogids as $blog_id) {
 				switch_to_blog($blog_id);
-				self::_customtaxorder_uninstall();
+				self::instance()->_customtaxorder_uninstall();
 				restore_current_blog();
 			}
 		} else {
-			self::_customtaxorder_uninstall();
+			self::instance()->_customtaxorder_uninstall();
 		}
 	}
 
