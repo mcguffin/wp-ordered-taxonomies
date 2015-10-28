@@ -144,7 +144,7 @@ class OrderTaxonomiesAdmin {
 
 		wp_enqueue_script( 'order_taxonomies-admin' , plugins_url( 'js/order_taxonomies-admin.js' , dirname(__FILE__) ) , array( 'jquery' , 'jquery-ui-core' , 'jquery-ui-sortable') );
 		wp_localize_script('order_taxonomies-admin' , 'order_taxonomies_admin' , array(
-			wpnonce => wp_create_nonce( 'order-terms' ),
+			'wpnonce' => wp_create_nonce( 'order-terms' ),
 		) );
 	}
 
