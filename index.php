@@ -66,11 +66,9 @@ class OrderTaxonomies {
 
 	function registered_taxonomy( $taxonomy , $object_type , $args ) {
 		global $wp_taxonomies;
-		if ( ! isset($wp_taxonomies[ $taxonomy ]->ordered) ) {
-			$is_ordered = ( ( defined( 'PRIVATE_ORDERED_TAXONOMIES' ) && PRIVATE_ORDERED_TAXONOMIES && isset( $args[ 'ordered' ] ) && $args[ 'ordered' ] ) 
-				|| in_array( $taxonomy , get_option( 'ordered_taxonomies' ) ) );
-			$wp_taxonomies[ $taxonomy ]->ordered = $is_ordered;
-		}
+		$is_ordered = ( ( defined( 'PRIVATE_ORDERED_TAXONOMIES' ) && PRIVATE_ORDERED_TAXONOMIES && isset( $args[ 'ordered' ] ) && $args[ 'ordered' ] ) 
+			|| in_array( $taxonomy , get_option( 'ordered_taxonomies' ) ) );
+		$wp_taxonomies[ $taxonomy ]->ordered = $is_ordered;
 	}
 
 	/**
