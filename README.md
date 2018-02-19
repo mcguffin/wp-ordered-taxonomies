@@ -25,7 +25,7 @@ constant.
 #### User mode
 
 Make sure the constant `PRIVATE_ORDERED_TAXONOMIES` is either not defined or `false`.
-The user will be presented an settings section on the writing options screen, where she 
+The user will be presented a settings section on the writing options screen, where she 
 or he can select which taxonomies can be sorted.
 
 #### Developer Mode

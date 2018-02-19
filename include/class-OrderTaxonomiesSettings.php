@@ -78,9 +78,10 @@ class OrderTaxonomiesSettings {
 		$setting_name = 'ordered_taxonomies';
 		$setting = (array) get_option($setting_name);
 		$taxonomies = get_taxonomies( array( 'show_ui' => true ), 'objects' );
+
 		foreach ( $taxonomies as $taxonomy ) {
 			?><p><label for="check-<?php esc_attr_e( $taxonomy->name ) ?>"><?php
-				?><input <?php checked( $taxonomy->ordered ) ?> id="check-<?php esc_attr_e( $taxonomy->name ) ?>" type="checkbox" name="<?php esc_attr_e($setting_name) ?>[]" value="<?php esc_attr_e( $taxonomy->name ) ?>" /><?php
+				?><input <?php checked( in_array($taxonomy->name, $setting ) ) ?> id="check-<?php esc_attr_e( $taxonomy->name ) ?>" type="checkbox" name="<?php esc_attr_e($setting_name) ?>[]" value="<?php esc_attr_e( $taxonomy->name ) ?>" /><?php
 				echo $taxonomy->labels->name
 			?></label></p><?php
 		}
