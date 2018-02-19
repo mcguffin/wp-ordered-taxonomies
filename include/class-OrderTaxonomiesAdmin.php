@@ -4,7 +4,7 @@
 if ( ! class_exists( 'OrderTaxonomiesAdmin' ) ):
 class OrderTaxonomiesAdmin {
 	private static $_instance = null;
-	
+
 	/**
 	 * Getting a singleton.
 	 *
@@ -27,7 +27,7 @@ class OrderTaxonomiesAdmin {
 
 		add_action( 'registered_taxonomy' , array( &$this , 'registered_taxonomy' ) , 30 ,3 );
 	}
-	
+
 	/**
 	 * Setup sort column
 	 *
@@ -35,7 +35,7 @@ class OrderTaxonomiesAdmin {
 	 */
 	function registered_taxonomy( $taxonomy , $object_type , $args ) {
 		global $wp_taxonomies;
-		if ( $wp_taxonomies[ $taxonomy ]->ordered ) {
+		if ( isset( $wp_taxonomies[ $taxonomy ] , $wp_taxonomies[ $taxonomy ]->ordered ) && $wp_taxonomies[ $taxonomy ]->ordered ) {
 			add_filter( "manage_{$taxonomy}_custom_column" , array( &$this , 'sortkey_column_content' ) , 10 , 3 );
 			add_filter( "manage_edit-{$taxonomy}_columns" , array( &$this , 'add_sortkey_column' ) );
 			add_filter( "manage_edit-{$taxonomy}_sortable_columns" , array( &$this , 'add_sorted_sortkey_column' ) );
@@ -60,7 +60,7 @@ class OrderTaxonomiesAdmin {
 	 * @filter 'manage_edit-{$taxonomy}_columns'
 	 */
 	function add_sortkey_column( $columns ) {
-		$new_column = array( 
+		$new_column = array(
 			'term_order' =>  '<span class="dashicons dashicons-sort"></span>',//__('#','wp-ordered-taxonomies'),
 		);
 		return $new_column + $columns;
@@ -74,7 +74,7 @@ class OrderTaxonomiesAdmin {
 		$sortable_columns['term_order'] = 'term_order';
 		return $sortable_columns;
 	}
-	
+
 	/**
 	 * Make term_order the Default order for sorted taxonomy edit screens
 	 *
@@ -83,7 +83,7 @@ class OrderTaxonomiesAdmin {
 	function set_default_orderby() {
 		global $wp_taxonomies;
 		if ( 	! isset( $_REQUEST['orderby'] ) &&
-				( $taxonomy = get_current_screen()->taxonomy ) && 
+				( $taxonomy = get_current_screen()->taxonomy ) &&
 				( $wp_taxonomies[ $taxonomy ]->ordered )
 			)
 			$_REQUEST['orderby'] = 'term_order';
@@ -104,10 +104,10 @@ class OrderTaxonomiesAdmin {
 				$result = false;
 				foreach ( $_REQUEST['order_terms'] as $term_id => $sortkey ) {
 					if ( intval($term_id) )
-						$result = $wpdb->update( $wpdb->terms , 
-							array( 'term_order' => $sortkey ) , 
-							array('term_id' => $term_id ) , 
-							array( '%d' ) , 
+						$result = $wpdb->update( $wpdb->terms ,
+							array( 'term_order' => $sortkey ) ,
+							array('term_id' => $term_id ) ,
+							array( '%d' ) ,
 							array( '%d' ) );
 					if ( $result !== false ) {
 						$response['terms_order'][$term_id] = intval($sortkey);
@@ -127,7 +127,7 @@ class OrderTaxonomiesAdmin {
 		echo json_encode($response);
 		exit('');
 	}
-	
+
 	/**
 	 * Admin init
 	 */

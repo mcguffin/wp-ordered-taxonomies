@@ -5,14 +5,14 @@ Plugin Name: WP Ordered Taxonomies
 Plugin URI: http://wordpress.org/
 Description: Enter description here.
 Author: Jörn Lund
-Version: 1.0.0
-Author URI: 
+Version: 1.0.1
+Author URI:
 License: GPL3*/
 
 /*  Copyright 2015  Jörn Lund
 
     This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License, version 2, as 
+    it under the terms of the GNU General Public License, version 2, as
     published by the Free Software Foundation.
 
     This program is distributed in the hope that it will be useful,
@@ -50,23 +50,23 @@ class OrderTaxonomies {
 	 * Private constructor
 	 */
 	private function __construct() {
-		
+
 		add_action( 'plugins_loaded' , array( &$this , 'load_textdomain' ) );
 		add_action( 'init' , array( &$this , 'init' ) );
-		
+
 		add_option( 'ordered_taxonomies' , array( ) );
-		
+
 		register_activation_hook( __FILE__ , array( __CLASS__ , 'activate' ) );
 		register_deactivation_hook( __FILE__ , array( __CLASS__ , 'deactivate' ) );
 		register_uninstall_hook( __FILE__ , array( __CLASS__ , 'uninstall' ) );
-		
+
 		add_action( 'registered_taxonomy' , array( &$this , 'registered_taxonomy' ) , 20 ,3 );
-		
+
 	}
 
 	function registered_taxonomy( $taxonomy , $object_type , $args ) {
 		global $wp_taxonomies;
-		$is_ordered = ( ( defined( 'PRIVATE_ORDERED_TAXONOMIES' ) && PRIVATE_ORDERED_TAXONOMIES && isset( $args[ 'ordered' ] ) && $args[ 'ordered' ] ) 
+		$is_ordered = ( ( defined( 'PRIVATE_ORDERED_TAXONOMIES' ) && PRIVATE_ORDERED_TAXONOMIES && isset( $args[ 'ordered' ] ) && $args[ 'ordered' ] )
 			|| in_array( $taxonomy , get_option( 'ordered_taxonomies' ) ) );
 		$wp_taxonomies[ $taxonomy ]->ordered = $is_ordered;
 	}
@@ -79,7 +79,7 @@ class OrderTaxonomies {
 	}
 	/**
 	 * Init hook.
-	 * 
+	 *
 	 *  - Register assets
 	 */
 	function init() {
@@ -121,7 +121,7 @@ class OrderTaxonomies {
 	private function _customtaxorder_activate() {
 		global $wpdb;
 		$init_query = $wpdb->query("SHOW COLUMNS FROM $wpdb->terms LIKE 'term_order'");
-		if ( empty( $init_query )) 
+		if ( empty( $init_query ))
 			$wpdb->query("ALTER TABLE $wpdb->terms ADD term_order INT( 4 ) NULL DEFAULT '0'");
 	}
 	/**
@@ -131,7 +131,7 @@ class OrderTaxonomies {
 		global $wpdb;
 		$init_query = $wpdb->query("SHOW COLUMNS FROM $wpdb->terms LIKE 'term_order'");
 		if ( ! empty( $init_query ) )
-			$wpdb->query("ALTER TABLE $wpdb->terms DROP COLUMN term_order"); 
+			$wpdb->query("ALTER TABLE $wpdb->terms DROP COLUMN term_order");
 	}
 
 	/**
