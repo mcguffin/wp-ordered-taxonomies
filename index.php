@@ -114,9 +114,14 @@ class OrderTaxonomies {
 			'relation'	=> 'OR',
 			array(
 				'key' => 'ordered_tax_sort_key',
-				'value' => '0',
-				'compare' => '>=',
-			)
+				'compare' => 'EXISTS',
+				'type'	=> 'NUMERIC',
+			),
+			array(
+				'key' => 'ordered_tax_sort_key',
+				'compare' => 'NOT EXISTS',
+				'type'	=> 'NUMERIC',
+			),
 		);
 		$qv['orderby'] = 'meta_value';
 		//$qv['order'] = 'ASC';
@@ -125,9 +130,11 @@ class OrderTaxonomies {
 
 
 	private function is_ordered_taxonomy( $taxonomy ) {
+
 		if ( ! $obj = get_taxonomy( $taxonomy ) ) {
 			return false;
 		};
+
 		return boolval( $obj->ordered );
 	}
 
