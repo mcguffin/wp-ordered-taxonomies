@@ -5,13 +5,13 @@
 			cursor: 'move',
 			handle: 'span.handle',
 			axis: 'y',
-			containment: 'table.widefat',
+			//containment: 'table.widefat',
 			cancel:	'.inline-edit-row',
-			distance: 2,
+			//distance: 2,
 			opacity: .8,
 			tolerance: 'pointer',
 			start: function(e, ui){
-				ui.placeholder.height(ui.item.height());
+				ui.placeholder.height( ui.item.height() );
 			},
 			helper: function(e, ui) {
 				var children = ui.children();
@@ -27,18 +27,15 @@
 			},
 			update: function(e, ui) {
 				var term_order = {},do_send,start_order=0;
-				
+
 				$tbl.find( 'tr[id^="tag-"]' ).each(function(i,elem) {
 					do_send = true;
 					var $self = $(this), id = $(elem).attr('id').replace(/[^0-9]/g,'');
 					term_order[id] = start_order+i;
-					
-					if ( i % 2 ) $self.removeClass('alternate');
-					else  $self.addClass('alternate');
 				});
-				
+
 				if ( do_send ) {
-					
+
 					$.post(ajaxurl , {
 						action : 'order-terms',
 						order_terms : term_order,
@@ -50,11 +47,11 @@
 								$( 'tr#tag-'+s+' td.term_order span' ).text( response.terms_order[s] );
 							}
 						}
-					
+
 					});
 				}
 			}
 		});
 	});
-	
+
 })(jQuery)

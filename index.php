@@ -6,13 +6,13 @@ Plugin URI: http://wordpress.org/
 Description: Enter description here.
 Author: Jörn Lund
 Version: 1.0.1
-Author URI: 
+Author URI:
 License: GPL3*/
 
 /*  Copyright 2015  Jörn Lund
 
     This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License, version 2, as 
+    it under the terms of the GNU General Public License, version 2, as
     published by the Free Software Foundation.
 
     This program is distributed in the hope that it will be useful,
@@ -33,7 +33,10 @@ Command line args were: `"WP Order Taxonomies" admin_js admin_css admin git --fo
 
 if ( ! class_exists( 'OrderTaxonomies' ) ):
 class OrderTaxonomies {
+
 	private static $_instance = null;
+
+	private $ordered_taxonomies = array();
 
 	/**
 	 * Getting a singleton.
@@ -50,25 +53,24 @@ class OrderTaxonomies {
 	 * Private constructor
 	 */
 	private function __construct() {
-		
-		add_action( 'plugins_loaded' , array( &$this , 'load_textdomain' ) );
-		add_action( 'init' , array( &$this , 'init' ) );
-		
+
+		add_action( 'plugins_loaded', array( $this , 'load_textdomain' ) );
+		add_action( 'init', array( $this , 'init' ) );
+
 		add_option( 'ordered_taxonomies' , array( ) );
-		
+
 		register_activation_hook( __FILE__ , array( __CLASS__ , 'activate' ) );
-		register_deactivation_hook( __FILE__ , array( __CLASS__ , 'deactivate' ) );
-		register_uninstall_hook( __FILE__ , array( __CLASS__ , 'uninstall' ) );
-		
-		add_action( 'registered_taxonomy' , array( &$this , 'registered_taxonomy' ) , 20 ,3 );
-		
+//		register_deactivation_hook( __FILE__ , array( __CLASS__ , 'deactivate' ) );
+//		register_uninstall_hook( __FILE__ , array( __CLASS__ , 'uninstall' ) );
+
+		add_action( 'registered_taxonomy', array( $this , 'registered_taxonomy' ) , 20 ,3 );
+
 	}
 
 	function registered_taxonomy( $taxonomy , $object_type , $args ) {
 		global $wp_taxonomies;
 		if ( ! isset($wp_taxonomies[ $taxonomy ]->ordered) ) {
-			$is_ordered = ( ( defined( 'PRIVATE_ORDERED_TAXONOMIES' ) && PRIVATE_ORDERED_TAXONOMIES && isset( $args[ 'ordered' ] ) && $args[ 'ordered' ] ) 
-				|| in_array( $taxonomy , get_option( 'ordered_taxonomies' ) ) );
+			$is_ordered = ( ( defined( 'PRIVATE_ORDERED_TAXONOMIES' ) && PRIVATE_ORDERED_TAXONOMIES && isset( $args[ 'ordered' ] ) && $args[ 'ordered' ] ) );
 			$wp_taxonomies[ $taxonomy ]->ordered = $is_ordered;
 		}
 	}
@@ -79,86 +81,80 @@ class OrderTaxonomies {
 	public function load_textdomain() {
 		load_plugin_textdomain( 'wp-ordered-taxonomies' , false, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
 	}
+
 	/**
 	 * Init hook.
-	 * 
-	 *  - Register assets
+	 *
+	 *  @action init
 	 */
-	function init() {
-		add_filter('get_terms_orderby', array( &$this , 'get_terms_orderby' ), 10, 3);
+	public function init() {
+		add_action('parse_term_query', array( $this , 'parse_term_query' ), 10, 1 );
 	}
 
 	/*
 	 * customtaxorder_apply_order_filter
 	 * Function to sort the standard WordPress Queries.
 	 */
+	function parse_term_query( $query ) {
 
-	function get_terms_orderby($orderby, $args , $taxonomies ) {
-		if ( $args['orderby'] == 'term_order' ) {
-			return 't.term_order';
+		if ( 1 !== count( $query->query_vars['taxonomy'] ) ) {
+			return;
 		}
-		return $orderby;
+
+		if ( ! $this->is_ordered_taxonomy( $query->query_vars['taxonomy'][0] ) ) {
+			return;
+		}
+
+		if ( isset( $_REQUEST['orderby'] ) && $_REQUEST['orderby'] !== 'term_order' ) {
+			return;
+		}
+
+		$qv = $query->query_vars;
+		$qv['meta_query'] = array(
+			'relation'	=> 'OR',
+			array(
+				'key' => 'ordered_tax_sort_key',
+				'value' => '0',
+				'compare' => '>=',
+			)
+		);
+		$qv['orderby'] = 'meta_value';
+		//$qv['order'] = 'ASC';
+		$query->query_vars = $qv;
 	}
 
+
+	private function is_ordered_taxonomy( $taxonomy ) {
+		if ( ! $obj = get_taxonomy( $taxonomy ) ) {
+			return false;
+		};
+		return boolval( $obj->ordered );
+	}
 
 	/**
 	 *	Fired on plugin activation
 	 */
 	public static function activate() {
 		global $wpdb;
-		if (function_exists('is_multisite') && is_multisite()) {
-/*
-			$blogids = $wpdb->get_col("SELECT blog_id FROM $wpdb->blogs");
-			foreach ($blogids as $blog_id) {
-				switch_to_blog($blog_id);
-				self::_customtaxorder_activate();
-				restore_current_blog();
-			}
-*/
-		} else {
-			self::_customtaxorder_activate();
-		}
+		// rm deprcated col
+		return self::_customtaxorder_uninstall();
 	}
-	/**
-	 *	Add terms.term_order Column to DB
-	 */
-	private static function _customtaxorder_activate() {
-		global $wpdb;
-		$init_query = $wpdb->query("SHOW COLUMNS FROM $wpdb->terms LIKE 'term_order'");
-		if ( empty( $init_query )) 
-			$wpdb->query("ALTER TABLE $wpdb->terms ADD term_order INT( 4 ) NULL DEFAULT '0'");
-	}
+
 	/**
 	 *	Remove terms.term_order Column from DB
 	 */
 	private static function _customtaxorder_uninstall() {
 		global $wpdb;
 		$init_query = $wpdb->query("SHOW COLUMNS FROM $wpdb->terms LIKE 'term_order'");
-		if ( ! empty( $init_query ) )
-			$wpdb->query("ALTER TABLE $wpdb->terms DROP COLUMN term_order"); 
+		if ( ! empty( $init_query ) ) {
+			$wpdb->query("ALTER TABLE $wpdb->terms DROP COLUMN term_order");
+		}
 	}
 
 	/**
 	 *	Fired on plugin deactivation
 	 */
 	public static function deactivate() {}
-
-	/**
-	 *	Fired on plugin uninstall
-	 */
-	public static function uninstall(){
-		global $wpdb;
-		if (function_exists('is_multisite') && is_multisite()) {
-			$blogids = $wpdb->get_col("SELECT blog_id FROM $wpdb->blogs");
-			foreach ($blogids as $blog_id) {
-				switch_to_blog($blog_id);
-				self::_customtaxorder_uninstall();
-				restore_current_blog();
-			}
-		} else {
-			self::_customtaxorder_uninstall();
-		}
-	}
 
 }
 OrderTaxonomies::instance();
