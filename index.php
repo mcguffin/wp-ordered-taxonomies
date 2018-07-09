@@ -5,7 +5,7 @@ Plugin Name: WP Ordered Taxonomies
 Plugin URI: http://wordpress.org/
 Description: Enter description here.
 Author: Jörn Lund
-Version: 1.0.0
+Version: 1.0.1
 Author URI: 
 License: GPL3*/
 
@@ -107,12 +107,14 @@ class OrderTaxonomies {
 	public static function activate() {
 		global $wpdb;
 		if (function_exists('is_multisite') && is_multisite()) {
+/*
 			$blogids = $wpdb->get_col("SELECT blog_id FROM $wpdb->blogs");
 			foreach ($blogids as $blog_id) {
 				switch_to_blog($blog_id);
 				self::_customtaxorder_activate();
 				restore_current_blog();
 			}
+*/
 		} else {
 			self::_customtaxorder_activate();
 		}
@@ -120,7 +122,7 @@ class OrderTaxonomies {
 	/**
 	 *	Add terms.term_order Column to DB
 	 */
-	private function _customtaxorder_activate() {
+	private static function _customtaxorder_activate() {
 		global $wpdb;
 		$init_query = $wpdb->query("SHOW COLUMNS FROM $wpdb->terms LIKE 'term_order'");
 		if ( empty( $init_query )) 
@@ -129,7 +131,7 @@ class OrderTaxonomies {
 	/**
 	 *	Remove terms.term_order Column from DB
 	 */
-	private function _customtaxorder_uninstall() {
+	private static function _customtaxorder_uninstall() {
 		global $wpdb;
 		$init_query = $wpdb->query("SHOW COLUMNS FROM $wpdb->terms LIKE 'term_order'");
 		if ( ! empty( $init_query ) )
