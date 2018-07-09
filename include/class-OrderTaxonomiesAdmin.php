@@ -35,7 +35,7 @@ class OrderTaxonomiesAdmin {
 	 */
 	function registered_taxonomy( $taxonomy , $object_type , $args ) {
 		global $wp_taxonomies;
-		if ( $wp_taxonomies[ $taxonomy ]->ordered ) {
+		if ( isset( $wp_taxonomies[ $taxonomy ] , $wp_taxonomies[ $taxonomy ]->ordered ) && $wp_taxonomies[ $taxonomy ]->ordered ) {
 			add_filter( "manage_{$taxonomy}_custom_column" , array( &$this , 'sortkey_column_content' ) , 10 , 3 );
 			add_filter( "manage_edit-{$taxonomy}_columns" , array( &$this , 'add_sortkey_column' ) );
 			add_filter( "manage_edit-{$taxonomy}_sortable_columns" , array( &$this , 'add_sorted_sortkey_column' ) );
@@ -144,7 +144,7 @@ class OrderTaxonomiesAdmin {
 
 		wp_enqueue_script( 'order_taxonomies-admin' , plugins_url( 'js/order_taxonomies-admin.js' , dirname(__FILE__) ) , array( 'jquery' , 'jquery-ui-core' , 'jquery-ui-sortable') );
 		wp_localize_script('order_taxonomies-admin' , 'order_taxonomies_admin' , array(
-			wpnonce => wp_create_nonce( 'order-terms' ),
+			'wpnonce' => wp_create_nonce( 'order-terms' ),
 		) );
 	}
 
