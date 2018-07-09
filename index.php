@@ -5,7 +5,7 @@ Plugin Name: WP Ordered Taxonomies
 Plugin URI: http://wordpress.org/
 Description: Enter description here.
 Author: Jörn Lund
-Version: 1.0.1
+Version: 1.1.0
 Author URI:
 License: GPL3*/
 

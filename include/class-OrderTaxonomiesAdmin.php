@@ -72,7 +72,6 @@ class OrderTaxonomiesAdmin {
 		return $sortable_columns;
 	}
 
-
 	/**
 	 * Ajax reqest for sorting columns
 	 *
