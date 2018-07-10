@@ -130,9 +130,9 @@ class OrderTaxonomiesAdmin {
 	 * @action 'load-edit-tags.php'
 	 */
 	function enqueue_assets() {
-		wp_enqueue_style( 'order_taxonomies-admin' , plugins_url( '/css/order_taxonomies-admin.css' , dirname(__FILE__) ) );
+		wp_enqueue_style( 'order_taxonomies-admin' , plugins_url( '/css/order_taxonomies-admin.css' , dirname(__FILE__) ), '1.1.0' );
 
-		wp_enqueue_script( 'order_taxonomies-admin' , plugins_url( 'js/order_taxonomies-admin.js' , dirname(__FILE__) ) , array( 'jquery' , 'jquery-ui-core' , 'jquery-ui-sortable') );
+		wp_enqueue_script( 'order_taxonomies-admin' , plugins_url( 'js/order_taxonomies-admin.js' , dirname(__FILE__) ) , array( 'jquery' , 'jquery-ui-core' , 'jquery-ui-sortable'), '1.1.0' );
 		wp_localize_script('order_taxonomies-admin' , 'order_taxonomies_admin' , array(
 			'wpnonce' => wp_create_nonce( 'order-terms' ),
 		) );
