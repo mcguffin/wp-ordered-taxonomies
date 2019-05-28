@@ -5,7 +5,7 @@ Plugin Name: WP Ordered Taxonomies
 Plugin URI: http://wordpress.org/
 Description: Enter description here.
 Author: Jörn Lund
-Version: 1.1.0
+Version: 1.1.1
 Author URI:
 License: GPL3*/
 
@@ -69,7 +69,7 @@ class OrderTaxonomies {
 
 	function registered_taxonomy( $taxonomy , $object_type , $args ) {
 		global $wp_taxonomies;
-		if ( ! isset($wp_taxonomies[ $taxonomy ]->ordered) ) {
+		if ( ! isset( $wp_taxonomies[ $taxonomy ]->ordered ) ) {
 			$is_ordered = ( ( defined( 'PRIVATE_ORDERED_TAXONOMIES' ) && PRIVATE_ORDERED_TAXONOMIES && isset( $args[ 'ordered' ] ) && $args[ 'ordered' ] ) );
 			$wp_taxonomies[ $taxonomy ]->ordered = $is_ordered;
 		}
@@ -97,7 +97,7 @@ class OrderTaxonomies {
 	 */
 	function parse_term_query( $query ) {
 
-		if ( 1 !== count( $query->query_vars['taxonomy'] ) ) {
+		if ( ! isset($query->query_vars['taxonomy']) || 1 !== count( $query->query_vars['taxonomy'] ) ) {
 			return;
 		}
 
